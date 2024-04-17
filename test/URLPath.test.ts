@@ -10,7 +10,11 @@ import {
 } from "../src/Either"
 import { unpack } from "../src/Newtype"
 import { unsafeUnwrap as unsafeUnwrapO } from "../src/Option"
-import { unsafeParse as unsafeParseURL } from "../src/URL"
+import {
+	Eq as EqURL,
+	setPathname as setPathnameURL,
+	unsafeParse as unsafeParseURL,
+} from "../src/URL"
 import {
 	Eq,
 	type URLPath,
@@ -382,6 +386,26 @@ describe("URLPath", () => {
 
 		it("is lawful", () => {
 			laws.eq(Eq, arb)
+		})
+	})
+
+	describe("flow(fromURL, toURL)", () => {
+		it("is identity (modulo monads)", () => {
+			fc.assert(
+				fc.property(
+					fc.webUrl(),
+					fc.webPath({ size: "+1" }),
+					(urlString, path) => {
+						// We need to build the URL using an unrelated `fc.webPath`
+						// because `fc.webUrl` doesn't seem able to generate paths of the
+						// form `scheme://authority//*`
+						const url = pipe(urlString, unsafeParseURL, setPathnameURL(path))
+						const g = flow(fromURL, toURLO(urlString), unsafeUnwrapO)
+
+						expect(EqURL.equals(g(url), url)).toBe(true)
+					},
+				),
+			)
 		})
 	})
 })
