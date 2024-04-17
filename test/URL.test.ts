@@ -213,6 +213,22 @@ describe("URL", () => {
 			expect(getPathname(x)).toBe("/foo")
 			expect(getPathname(y)).toBe("/foobar")
 		})
+
+		it("preserves origin", () => {
+			fc.assert(
+				fc.property(
+					fc.webPath({ size: "+1" }),
+					fc.webUrl(),
+					(pathname, urlString) => {
+						const url = unsafeParse(urlString)
+						const a = getOrigin(f(constant(pathname))(url))
+						const b = getOrigin(url)
+
+						expect(a).toBe(b)
+					},
+				),
+			)
+		})
 	})
 
 	describe("getParams", () => {
