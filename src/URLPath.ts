@@ -132,7 +132,13 @@ export const toURL =
 		// It should only throw some sort of `TypeError`:
 		// https://developer.mozilla.org/en-US/docs/Web/API/URL/URL
 		E.tryCatch(
-			() => new globalThis.URL(toString(x), baseUrl),
+			() => {
+				const url = URL.unsafeParse(baseUrl)
+				url.pathname = getPathname(x)
+				url.search = getParams(x).toString()
+				url.hash = getHash(x)
+				return url
+			},
 			e => f(e as TypeError),
 		)
 
