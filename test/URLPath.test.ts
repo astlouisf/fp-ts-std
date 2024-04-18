@@ -256,6 +256,17 @@ describe("URLPath", () => {
 				}),
 			)
 		})
+
+		it("pipe(fromPathname(x), setPathname(y)) === fromPathname(y)", () => {
+			fc.assert(
+				fc.property(fc.string(), fc.string(), (x, y) => {
+					const a = pipe(fromPathname(x), setPathname(y))
+					const b = fromPathname(y)
+
+					expect(Eq.equals(a, b)).toBe(true)
+				}),
+			)
+		})
 	})
 
 	describe("getPathname", () => {
