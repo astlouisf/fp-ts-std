@@ -276,6 +276,18 @@ describe("URLPath", () => {
 			const x = "/foo/bar.baz"
 			expect(pipe(x, fromPathname, f)).toBe(x)
 		})
+
+		it("pipe(x, setPathname(getPathname(x))) is identity", () => {
+			fc.assert(
+				fc.property(fc.string(), x => {
+					const path = fromPathname(x)
+					const a = getPathname(path)
+					const b = pipe(path, setPathname(a), getPathname)
+
+					expect(a).toBe(b)
+				}),
+			)
+		})
 	})
 
 	describe("setPathname", () => {
