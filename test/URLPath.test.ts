@@ -246,6 +246,34 @@ describe("URLPath", () => {
 				),
 			)
 		})
+
+		it("only resolves `.` and `..` for paths", () => {
+			const resolveDots = (path: string): string => {
+				const a: Array<string> = []
+				const segments = path.split("/")
+				for (let i = 0; i < segments.length; i++) {
+					const s = segments[i]
+					if (/^(?:\.|%2e)$/i.test(s)) {
+						if (i === segments.length - 1) {
+							// ensures that `//.` -> `//`
+							a.push("")
+						}
+					} else if (/^(?:\.|%2e){2}$/i.test(s)) {
+						a.pop()
+					} else {
+						a.push(s)
+					}
+				}
+				const b = a.join("/")
+				return b === "" ? "/" : b
+			}
+
+			fc.assert(
+				fc.property(fc.webPath({ size: "+1" }), x => {
+					expect(f(x)).toBe(resolveDots(x))
+				}),
+			)
+		})
 	})
 
 	describe("fromPathname", () => {
