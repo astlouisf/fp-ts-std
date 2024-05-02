@@ -236,6 +236,18 @@ describe("URLPath", () => {
 		})
 	})
 
+	describe("flow(fromString, toString)", () => {
+		const f = flow(fromString, toString)
+
+		it("is idempotent", () => {
+			fc.assert(
+				fc.property(fc.oneof(fc.string(), fc.webPath({ size: "+1" })), x =>
+					expect(f(x)).toBe(f(f(x))),
+				),
+			)
+		})
+	})
+
 	describe("fromPathname", () => {
 		const f = fromPathname
 
